@@ -1,0 +1,336 @@
+$primary: #2FBDFC;
+$accent: #1177B5;
+$text: #000000;
+$grey1: #E6E7E8;
+$grey2: #F5F5F5;
+$red: #FC3D39;
+
+*.bold {
+  font-weight: 500;
+}
+
+div.header {
+    width: 100%;
+    height: 70px;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    background: $primary;
+    color: white;
+    h1 {
+        margin-left: 15px;
+        font-size: 28px;
+    }
+    div.right-menu {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        a {
+            margin-right: 30px;
+        }
+        img {
+            height: 70px;
+        }
+    }
+}
+
+div.popup {
+  background: rgba(230, 231, 232, 0.4);
+  position: fixed;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  z-index: 999;
+  &.image-popup {
+    img.img-exit {
+      position: fixed;
+      right: 90px;
+      top: 90px;
+    }
+    div.popup-wrap {
+      padding: 0;
+      width: auto;
+      background: none;
+      box-shadow: none;
+      img {
+        width: 50vw;
+        height: auto;
+      }
+    }
+  }
+  &.visible {
+    display: flex;
+  }
+  div.popup-wrap {
+    background: white;
+    box-shadow: 0px 2.5px 10px rgba(0,0,0,0.4);
+    padding: 15px;
+    width: 320px;
+    p {
+      text-align: center;
+      font-size: 24px;
+      margin: 0;
+      padding: 15px 0;
+    }
+    a.btn {
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      justify-content: center;
+      width: 200px;
+      height: 40px;
+      margin: 15px auto;
+      text-align: center;
+      border-radius: 5px;
+      cursor: pointer;
+      &.blue {
+        background: $primary;
+        color: white;
+      }
+      &.white {
+        border: 3px solid $grey1;
+      }
+    }
+  }
+}
+
+a.button {
+    min-width: 75px;
+    height: 30px;
+    border-radius: 5px;
+    background: $accent;
+    color: white;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    &.invisible {
+      display: none;
+    }
+    &.outline {
+      background: none;
+      border: 2px solid white;
+      &.primary {
+          border: 2px solid $primary;
+          color: $primary;
+      }
+    }
+    &.light {
+        background: $primary;
+    }
+    &.grey {
+      border: 2px solid $grey1;
+      color: $grey1;
+      background: none;
+    }
+    &.invisible-pe {
+      pointer-events: none;
+      opacity: 0;
+    }
+}
+
+.invisible {
+  display: none;
+}
+
+p.image-index {
+  font-size: 12px;
+  padding-top: 10px;
+}
+
+div.button-wrap {
+    width: 100%;
+    padding: 12.5px 0 0 0;
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-end;
+    align-items: center;
+    p {
+      margin: 0;
+    }
+    a {
+        margin-left: 15px;
+        width: 100px;
+    }
+}
+
+div.buttons {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  padding-bottom: 10px;
+  position: relative;
+  z-index: 11;
+  div.marker-dropdown, img.icon {
+    margin-right: 15px;
+    &:last-child {
+      margin-right: 0;
+    }
+  }
+}
+
+div.marker-dropdown {
+  border: 2px solid $grey1;
+  border-radius: 5px;
+  width: 90px;
+  height: 37.5px;
+  border-radius: 5px;
+  position: relative;
+  top: -1px;
+  &.wide {
+    width: 170px;
+    div.marker-content {
+      width: 170px;
+    }
+  }
+  div.marker-header {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    height: 100%;
+    padding: 0 15px;
+    p {
+      margin: 0;
+    }
+  }
+  div.marker-content {
+    position: absolute;
+    width: 90px;
+    top: 35px;
+    left: -2px;
+    z-index: 100;
+    background: white;
+    border: 2px solid $grey1;
+    border-radius: 5px;
+    p {
+      margin: 0;
+      padding: 5px 15px;
+    }
+  }
+}
+
+div.card {
+    position: relative;
+    &.border {
+      border: 2px solid $grey1;
+      border-radius: 5px;
+    }
+    &.margin-top {
+      margin-top: 97.5px;
+    }
+    &.margin-top-2 {
+      margin-top: -2.5px;
+    }
+    &.no-padding {
+      padding: 0;
+    }
+    padding: 15px;
+    overflow: auto;
+    h2 {
+      font-size: 20px;
+      padding-top: 4px;
+    }
+    h3 {
+        margin: 0;
+        &.title {
+          padding-top: 0;
+          color: $accent;
+          width: 200px;
+          font-size: 20px;
+        }
+        &.padding {
+          padding: 10px 0 5px 0;
+        }
+    }
+    div.line {
+        border-bottom: 2px solid $grey1;
+    }
+    div.card-header {
+        display: flex;
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: center;
+        margin-top: 15px;
+        margin-left: 80px;
+        height: 50px;
+        &.no-margin {
+          margin-left: 0;
+          margin-top: 32.5px;
+        }
+        h2 {
+            white-space: nowrap;
+            color: $accent;
+            margin: 0;
+        }
+    }
+    div.btn-wrap {
+        display: flex;
+        flex-direction: row;
+        justify-content: flex-end;
+        width: 100%;
+        padding: 15px 5px;
+        a {
+            margin-left: 15px;
+            width: 100px;
+        }
+    }
+    div.bordered-table {
+      border: 2px solid $grey1;
+      border-radius: 5px;
+      width: calc(100% - 80px);
+      position: relative;
+      left: 80px;
+    }
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        tr.header {
+          td {
+              width: 10%;
+              text-align: center;
+              font-size: 10px;
+              padding: 10px 0;
+          }
+        }
+        tbody {
+          margin: 0;
+          background: $grey2;
+        }
+        tr {
+            td {
+                position: relative;
+                input {
+                    background: transparent;
+                    outline: none;
+                    margin: auto;
+                    display: block;
+                    border-radius: 5px;
+                    border: none;
+                    height: 30px;
+                    width: 65px;
+                    text-align: center;
+                    font-size: 10px;
+                }
+                img.delete {
+                  position: absolute;
+                  left: -35px;
+                  top: 5px;
+                  background: none;
+                  border-radius: 5px;
+                  color: $red;
+                  width: auto;
+                }
+            }
+        }
+    }
+}

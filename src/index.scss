@@ -1,0 +1,26 @@
+/* Font */
+@font-face {
+    font-family: 'Avenir';
+    src: ul('./Fonts/AvenirLTStd-Roman.otf');
+    font-weight: normal;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'Avenir Medium';
+    src: ul('./Fonts/AvenirMedium.otf');
+    font-weight: normal;
+    font-style: normal;
+}
+
+
+body {
+  margin: 0;
+  padding: 0;
+  font-family: 'Avenir', sans-serif;
+}
+
+* {
+    font-weight: 300;
+    box-sizing: border-box;
+}

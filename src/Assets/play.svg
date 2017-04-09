@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="72px" height="36px" viewBox="0 0 72 36" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <!-- Generator: Sketch 42 (36781) - http://www.bohemiancoding.com/sketch -->
+    <title>Play</title>
+    <desc>Created with Sketch.</desc>
+    <defs>
+        <rect id="path-1" x="0" y="0" width="72" height="36" rx="8"></rect>
+        <mask id="mask-2" maskContentUnits="userSpaceOnUse" maskUnits="objectBoundingBox" x="0" y="0" width="72" height="36" fill="white">
+            <use xlink:href="#path-1"></use>
+        </mask>
+    </defs>
+    <g id="Page-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="Add_Scope" transform="translate(-611.000000, -536.000000)">
+            <g id="Play" transform="translate(611.000000, 536.000000)">
+                <use id="Rectangle-11" stroke="#E6E7E8" mask="url(#mask-2)" stroke-width="4" fill="#FFFFFF" xlink:href="#path-1"></use>
+                <g id="Group-2" transform="translate(29.000000, 9.000000)" fill="#A7A9AC">
+                    <path d="M1,2.99406028 C1,1.8927712 1.88772964,1 3,1 L3,1 C4.1045695,1 5,1.89451376 5,2.99406028 L5,15.0059397 C5,16.1072288 4.11227036,17 3,17 L3,17 C1.8954305,17 1,16.1054862 1,15.0059397 L1,2.99406028 Z" id="Rectangle-20"></path>
+                    <path d="M4.89237636,7.10513307 C4.89237636,5.9990392 5.78527164,5.16167646 6.89386818,5.23530623 L7.25119318,5.25903873 C8.35658659,5.33245575 9.23782405,6.28997951 9.21925123,7.38706789 C9.21925123,7.38706789 9.11769784,13.7091985 9.03539135,16.6126772 C8.95308486,19.5161559 9.02916433,16.8255846 9.02916433,16.8255846 C8.95361842,17.5307353 8.00464671,18.1023729 6.89237636,18.1023729 L6.89237636,18.1023729 C5.78780686,18.1023729 4.89237636,17.2088303 4.89237636,16.0996128 L4.89237636,7.10513307 Z" id="Rectangle-20" transform="translate(7.055958, 11.666586) rotate(50.000000) translate(-7.055958, -11.666586) "></path>
+                    <path d="M4.58759987,1.9366119 C4.58759987,0.832674818 5.46885717,-0.261997286 6.54690778,-0.50635863 L6.68966425,-0.538717189 C7.77176013,-0.783995472 8.68697882,-0.0824945187 8.73297949,1.02085909 C8.73297949,1.02085909 9.00372944,7.33425372 9.09117311,10.5258268 C9.17861677,13.7174 9.1033972,11.0120254 9.1033972,11.0120254 C9.05857629,11.9116792 8.1248258,12.6409927 7.01252398,12.6409927 L6.59731764,12.6409927 C5.48738117,12.6409927 4.58759987,11.7477258 4.58759987,10.6421378 L4.58759987,1.9366119 Z" id="Rectangle-20" transform="translate(6.860540, 6.026681) rotate(-50.000000) translate(-6.860540, -6.026681) "></path>
+                    <rect id="Rectangle-6" x="3" y="6" width="5" height="6"></rect>
+                </g>
+            </g>
+        </g>
+    </g>
+</svg>

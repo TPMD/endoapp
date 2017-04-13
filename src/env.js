@@ -1,3 +1,3 @@
-const API = "https://538c690f.ngrok.io";
+const API = "http://localhost:5000";
 
 export { API }

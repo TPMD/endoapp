@@ -63,12 +63,16 @@ class Home extends Component {
     _this.getScopes();
     _this.confirmRecord();
     navigator.mediaDevices.enumerateDevices().then((devices) => {
+      console.log('all devices', devices)
       var videoInputs = devices.filter((device, i) => {
         return device['kind'] === 'videoinput'
       })
       videoInputs = videoInputs.map((device, i) => {
         if (device['label'].length > 9) {
           device['label_short'] = device['label'].substr(0,9) + '...';
+        }
+        else if(device['label'].length === 0) {
+          device['label'] = 'Default Camera'
         }
         return device;
       });
@@ -80,18 +84,18 @@ class Home extends Component {
       console.log(err);
     });
 
-    superagent
-    .get(API + "/patient/" + localStorage["Patient_Id"])
-    .withCredentials()
-    .end((err, res) => {
-      if (err) {
-        console.log(err);
-      } else {
-        _this.setState({
-          "PatientInfo": res.body
-        })
-      }
-    });
+    // superagent
+    // .get(API + "/patient/" + localStorage["Patient_Id"])
+    // .withCredentials()
+    // .end((err, res) => {
+    //   if (err) {
+    //     console.log(err);
+    //   } else {
+    //     _this.setState({
+    //       "PatientInfo": res.body
+    //     })
+    //   }
+    // });
   }
 
   PlayVideo() {

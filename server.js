@@ -2,6 +2,7 @@ const express = require('express');
 const app = express();
 
 app.use(express.static('./build'));
+app.use(express.static('./scss'))
 
 app.get('*', (req, res) => {
   return res.sendFile(__dirname + '/build/index.html');

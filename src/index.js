@@ -1,21 +1,33 @@
-import React from 'react';
-import ReactDOM from 'react-dom';
-
-import './index.scss';
-
+import React from 'react'
+import ReactDOM from 'react-dom'
+import { createStore, combineReducers } from 'redux'
+import { Provider } from 'react-redux'
 import { Router, Route, browserHistory } from 'react-router'
+import { syncHistoryWithStore, routerReducer } from 'react-router-redux'
+import HomeContainer  from './Containers/HomeContainer'
+import './scss/index.scss'
 
-import Home from './Routes/Home/Home';
-import Login from './Routes/Login/Login';
-import Register from './Routes/Register/Register';
-import Patient from './Routes/Patient/Patient';
+import * as reducers from './Reducers'
+
+
+// Add the reducer to your store on the `routing` key
+const store = createStore(
+  combineReducers({
+    ...reducers,
+    routing: routerReducer
+  })
+)
+
+// Create an enhanced history that syncs navigation events with the store
+const history = syncHistoryWithStore(browserHistory, store)
 
 ReactDOM.render(
-  <Router history={browserHistory}>
-    <Route path="/" component={Login}/>
-    <Route path="/register" component={Register}/>
-    <Route path="/patient" component={Patient}/>
-    <Route path="/endopage" component={Home}/>
-  </Router>,
+  <Provider store={store}>
+    { /* Tell the Router to use our enhanced history */ }
+    <Router history={history}>
+      <Route path="/" component={HomeContainer}>
+      </Route>
+    </Router>
+  </Provider>,
   document.getElementById('root')
-);
+)

@@ -21,10 +21,19 @@ var setTime = 0;
 var recorder;
 var chunks = [];
 var click = 0;
+var snapPhotoInterval
+const picCountLookup = {
+  30: 60,
+  60: 120,
+  90: 180,
+  120: 340,
+  200: 400
+}
 
 class Home extends Component {
   constructor(props) {
     super(props);
+    const patient = localStorage.getItem('Patient')
     this.state = {
       'first_record': true,
       'record_popup': 0,
@@ -47,23 +56,20 @@ class Home extends Component {
       'deleteScope': false,
       'highlightedCaptures': [],
       'PatientInfo': {
-        'Patient_Name': 'Test Patient #1',
-        'Patient_Id': '0000001',
-        'Patient_Insurance': 'OCGH',
-        'Patient_Doctor': 'Dr. Surinder',
-        'Patient_OperationType': 'Procedure',
-        'Patient_Date': '2017-03-15'
+        'Patient_Name': localStorage.getItem('patientName'),
+        'Patient_Id': localStorage.getItem('patientId'),
+        'Patient_Insurance': localStorage.getItem('patientInsurance'),
+        'Patient_Doctor': localStorage.getItem('patientDoctor'),
+        'Patient_OperationType': localStorage.getItem('patientOperationType'),
+        'Patient_Date': localStorage.getItem('patientCreatedAt')
       },
       'Scopes': []
     }
+    this.getVideoInputs = this.getVideoInputs.bind(this)
   }
-
-  componentDidMount() {
-    let _this = this;
-    _this.getScopes();
-    _this.confirmRecord();
+  getVideoInputs() {
+    let _this = this
     navigator.mediaDevices.enumerateDevices().then((devices) => {
-      console.log('all devices', devices)
       var videoInputs = devices.filter((device, i) => {
         return device['kind'] === 'videoinput'
       })
@@ -72,7 +78,7 @@ class Home extends Component {
           device['label_short'] = device['label'].substr(0,9) + '...';
         }
         else if(device['label'].length === 0) {
-          device['label'] = 'Default Camera'
+          device['label_short'] = 'Facetime...'
         }
         return device;
       });
@@ -81,8 +87,19 @@ class Home extends Component {
         activeDevice: videoInputs[0]
       })
     }).catch((err) => {
-      console.log(err);
+      console.log('error getting input devices', err);
     });
+  }
+  componentDidMount() {
+    console.log('home.js mounted')
+    let _this = this;
+    _this.getVideoInputs()
+    _this.getScopes();
+    _this.confirmRecord();
+    setTimeout(() => _this.setState({
+      loading:false
+    }), 3000)
+    _this.addScope()
 
     // superagent
     // .get(API + "/patient/" + localStorage["Patient_Id"])
@@ -104,11 +121,12 @@ class Home extends Component {
       let video = document.querySelector('video.video2');
       video.currentTime = setTime;
       video.play();
-    }, 100)
+    }, 1000)
   }
 
   StopVideo() {
     clearInterval(timer_timeout);
+    clearInterval(snapPhotoInterval)
     if (recorder.state === 'recording') {
       recorder.stop();
     }
@@ -125,6 +143,7 @@ class Home extends Component {
     })
     timer = 0;
     chunks = [];
+    this.confirmRecord();
   }
 
   ToggleRecordState() {
@@ -142,6 +161,7 @@ class Home extends Component {
   }
 
   ToggleRecord() {
+    console.log('toggle record', recorder.state)
     let _this = this;
     if (!_this.state.stream) {
       _this.confirmRecord();
@@ -151,18 +171,53 @@ class Home extends Component {
       return false;
     }
     if (recorder.state === 'inactive') {
+      timer = 0
       let _this = this;
+      if(setTime === 0) {
+        snapPhotoInterval = setInterval(() => _this.SnapPhoto(), 100)
+      }
       timer_timeout = setInterval(() => {
-        timer += 1;
-        if (Math.floor(timer) % setTime === 0) {
-          _this.SnapPhoto();
+        timer += 1
+      }, 600)
+      snapPhotoInterval = setInterval(() => {
+        let numPics = picCountLookup[setTime]
+        if(_this.state.captures.length < numPics) {
+          _this.SnapPhoto()
         }
-      }, 1000);
+        else {
+          timer = 0
+          _this.setState({
+            'recording': false
+          })
+          _this.confirmRecord()
+          _this.forceUpdate()
+        }
+      }, 300);
       recorder.start();
       _this.setState({
         'stopped': false
       })
       return false;
+    }
+    else if(recorder.state === 'recording') {
+      if(setTime === 0) {
+        snapPhotoInterval = setInterval(() => _this.SnapPhoto(), 500)
+      }
+      else {
+        console.log('video recording and else called')
+        timer_timeout = setInterval(() => {timer+=1}, 600)
+        snapPhotoInterval = setInterval(() => {
+        let numPics = picCountLookup[setTime]
+        if(_this.state.captures.length < numPics) {
+          _this.SnapPhoto()
+          }
+        else {
+          clearInterval(timer_timeout)
+          clearInterval(snapPhotoInterval)
+        }
+        }, 300);
+
+      }
     }
   }
 
@@ -289,17 +344,17 @@ class Home extends Component {
         formData.append('Images_CaptureTime', duration)
         formData.append('img', _this.CanvasToBlob(canvas.toDataURL('image/png')))
 
-        superagent
-        .post(API + '/images')
-        .withCredentials()
-        .send(formData)
-        .end((err, res) => {
-          if (err) {
-            console.log(err);
-          } else {
-            console.log("Image saved...");
-          }
-        })
+        // superagent
+        // .post(API + '/images')
+        // .withCredentials()
+        // .send(formData)
+        // .end((err, res) => {
+        //   if (err) {
+        //     console.log(err);
+        //   } else {
+        //     console.log("Image saved...");
+        //   }
+        // })
       }
     });
   }
@@ -372,37 +427,40 @@ class Home extends Component {
 
   getScopes() {
     var _this = this;
-    superagent
-    .get(API + '/scope?Patient_Id=' + localStorage.Patient_Id)
-    .withCredentials()
-    .end((err, res) => {
-      if (err) {
-        console.log(err);
-      } else {
-        if (res.body.length > 0) {
-          _this.setState({
-            'Scopes': res.body
-          })
-        }
-      }
+    _this.setState({
+      Scopes:[]
     })
+    // superagent
+    // .get(API + '/scope?Patient_Id=' + localStorage.Patient_Id)
+    // .withCredentials()
+    // .end((err, res) => {
+    //   if (err) {
+    //     console.log(err);
+    //   } else {
+    //     if (res.body.length > 0) {
+    //       _this.setState({
+    //         'Scopes': res.body
+    //       })
+    //     }
+    //   }
+    // })
   }
 
   pushScopes(index) {
     let _this = this;
     let Scope = this.state.Scopes[index];
     Scope['Patient_Id'] = localStorage['Patient_Id'];
-    superagent
-    .post(API + '/scope')
-    .send(Scope)
-    .withCredentials()
-    .end((err, res) => {
-      if (err) {
-        console.log(err);
-      } else {
-        _this.getScopes()
-      }
-    })
+    // superagent
+    // .post(API + '/scope')
+    // .send(Scope)
+    // .withCredentials()
+    // .end((err, res) => {
+    //   if (err) {
+    //     console.log(err);
+    //   } else {
+    //     _this.getScopes()
+    //   }
+    // })
   }
 
   confirmRecord() {
@@ -447,12 +505,6 @@ class Home extends Component {
           }, false)
         }
         clearInterval(timer_timeout);
-        timer_timeout = setInterval(() => {
-          timer += 1;
-          if (Math.floor(timer) % setTime === 0) {
-            _this.SnapPhoto();
-          }
-        }, 1000);
       }, (error) => {
         console.log("Something went wrong...")
       });
@@ -635,8 +687,6 @@ class Home extends Component {
 
 
   render() {
-    console.log(this.state.Scopes.length)
-
     let recordPopup = classname({
       'popup': true,
       'record-popup': true,
@@ -804,7 +854,6 @@ class Home extends Component {
           <div className="right-menu">
               <a className="button outline" onClick={this.printPopup.bind(this)}>Print</a>
               <a className="button outline" onClick={this.SaveImages.bind(this)}>Save</a>
-              <a className="button outline" onClick={this.goBack.bind(this)}>Next</a>
               <img src={require('../../Assets/x.svg')} alt="X" onClick={this.exitPopup.bind(this)}/>
           </div>
         </div>
@@ -853,17 +902,20 @@ class Home extends Component {
             </div>
           </div>
           <div className="column">
-            <div className="card border margin-top">
+            <div id='patientInfo' className="card border margin-top">
               <h3 className="padding">{this.state.PatientInfo.Patient_Name}</h3>
               <h3 className="">{this.state.PatientInfo.Patient_HospitalId}</h3>
               <div className="line"></div>
               <h3 className="padding">{this.state.PatientInfo.Patient_OperationType}</h3>
+              <div className="line"></div>
+              <h3 className="padding">{this.state.PatientInfo.Patient_Id}</h3>
               <div className="line"></div>
               <h3 className="padding">{moment.utc(Number(this.state.PatientInfo.Patient_Date)).format('YYYY-MM-DD')}</h3>
               <div className="line"></div>
               <h3 className="padding">{this.state.PatientInfo.Patient_Doctor}</h3>
               <div className="line"></div>
               <h3 className="padding">{this.state.PatientInfo.Patient_Insurance}</h3>
+              <div className="line"></div>  
             </div>
           </div>
         </div>
@@ -923,12 +975,12 @@ class Home extends Component {
               </div>
             </div>
           </div>
-          <div className="column">
+          <div className="column" id='scope-info'>
             <div className="card no-padding margin-top-2">
               <div className="card-header">
                 <h2>Scope Information</h2>
                 <div className="btn-wrap">
-                  <a className="button outline primary" onClick={this.addScope.bind(this)}><span className="bold"><img role='presentation' src={require('../../Assets/plus.svg')}/></span> Add New</a>
+                  <a id='add-new'className="button outline primary" onClick={this.addScope.bind(this)}><span className="bold"><img id='plus-img'role='presentation' src={require('../../Assets/plus.svg')}/></span> Add New</a>
                   <a className="button outline primary margin-right" onClick={this.toggleDeleteButton.bind(this)}>{EditText}</a>
                 </div>
               </div>

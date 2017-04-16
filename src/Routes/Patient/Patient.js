@@ -17,7 +17,8 @@ class Patient extends Component {
       'hospital': '',
       'insurance': '',
       'operationType': '',
-      'createdAt': ''
+      'createdAt': '',
+      'patientId': ''
     }
   }
 
@@ -39,8 +40,13 @@ class Patient extends Component {
       if (err) {
         alert(res.text);
       } else {
-        console.log(res.text);
-        localStorage.setItem("Patient_Id", res.text);
+        localStorage.setItem("patientName", this.state.name);
+        localStorage.setItem("patientDoctor", this.state.doctor);
+        localStorage.setItem("patientHospital", this.state.hospital);
+        localStorage.setItem("patientInsurance", this.state.insurance);
+        localStorage.setItem("patientCreatedAt", this.state.createdAt);
+        localStorage.setItem('patientOperationType', this.state.operationType)
+        localStorage.setItem('patientId', this.state.patientId)
         browserHistory.push('/endopage');
       }
     });
@@ -56,6 +62,8 @@ class Patient extends Component {
           <p className="label">Patient Name</p>
           <input type="text" value={this.state.name} onChange={this.updateInput.bind(this, 'name')}/>
           <p className="label">Patient Id</p>
+          <input type="text" value={this.state.patientId} onChange={this.updateInput.bind(this, 'patientId')}/>
+          <p className="label">Hospital</p>
           <input type="text" value={this.state.hospital} onChange={this.updateInput.bind(this, 'hospital')}/>
           <p className="label">Patient Insurance</p>
           <input type="text" value={this.state.insurance} onChange={this.updateInput.bind(this, 'insurance')}/>

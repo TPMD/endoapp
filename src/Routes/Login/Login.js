@@ -41,7 +41,7 @@ class Login extends Component {
     return (
       <div className="login">
         <div className="login-wrap">
-          <h1>Endopage 365</h1>
+          <h1>Endopage</h1>
           <p className="label">Email</p>
           <input type="text" value={this.state.email} onChange={this.updateInput.bind(this, 'email')}/>
           <p className="label">Password</p>

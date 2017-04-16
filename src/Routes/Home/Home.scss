@@ -11,8 +11,16 @@ img.still-image {
   right: 15px;
   top: -30px;
   z-index: 100;
+  margin-right:-8px;
 }
 
+#patientInfo {
+  height: 326px;
+}
+
+#plus-img {
+  margin-right:10px;
+}
 .bordered-table {
   tbody {
     tr {
@@ -26,6 +34,9 @@ img.still-image {
     }
   
   }
+}
+#scope-info {
+  margin-top:27%; 
 }
 a.margin-right {
   margin-right:-5px;
@@ -69,25 +80,30 @@ div.image-capture {
   padding: 15px 15px 0 15px !important;
 }
 
-div.canvases::-webkit-scrollbar:horizontal {
-    width: 9px;
-    height: 9px;
+div.canvases::-webkit-scrollbar {
+    width: 12px;
+    height: 12px;
+    border-radius:5px;
 }
 
-div.canvases::-webkit-scrollbar-track:horizontal {
+div.canvases::-webkit-scrollbar-track {
     -webkit-border-radius:5px;
     border-radius:5px;
     background:rgba(0,0,0,0.1);
 }
 
-div.canvases::-webkit-scrollbar-thumb:horizontal {
-    -webkit-border-radius:5px;
+div.canvases::-webkit-scrollbar-thumb {
+    -webkit-border-radius:10px;
     border-radius:5px;
-    background:rgba(0,0,0,0.2);
+    background:rgba(0,0,0,0.4);
 }
 
-div.canvases::-webkit-scrollbar-thumb:horizontal:hover {
+div.canvases::-webkit-scrollbar-thumb:hover {
     background:rgba(0,0,0,0.4);
+}
+
+#add-new {
+  width:120px;
 }
 
 div.canvases {
@@ -98,6 +114,8 @@ div.canvases {
   border-radius: 5px;
   padding: 15px 15px 0 15px;
   height: 325px;
+  overflow-y: hidden;
+
 
   div.canvas-padding {
     canvas {}

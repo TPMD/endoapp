@@ -8,6 +8,8 @@ import { API } from '../../env';
 
 import classname from 'classname';
 
+import keydown from 'react-keydown'
+
 import './Home.scss';
 //import Header from '../../Components/Header/Header';
 
@@ -221,6 +223,7 @@ class Home extends Component {
     }
   }
 
+  @keydown( 'control+s' )
   SnapPhoto() {
     let _this = this;
 

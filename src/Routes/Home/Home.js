@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { expect } from 'chai'
 import { browserHistory } from 'react-router';
-import * as moment from 'moment';
+import moment from 'moment';
 
 import superagent from 'superagent';
 import { API } from '../../env';
@@ -65,7 +65,10 @@ class Home extends Component {
         'Patient_OperationType': localStorage.getItem('patientOperationType'),
         'Patient_Date': localStorage.getItem('patientCreatedAt')
       },
-      'Scopes': []
+      'Scopes': [],
+      'recordStartTime':null,
+      'recordStopTime': null,
+      'videoDuration':null
     }
     this.getVideoInputs = this.getVideoInputs.bind(this)
   }
@@ -163,7 +166,6 @@ class Home extends Component {
   }
 
   ToggleRecord() {
-    console.log('toggle record', recorder.state)
     let _this = this;
     if (!_this.state.stream) {
       _this.confirmRecord();
@@ -488,12 +490,23 @@ class Home extends Component {
           mimeType : 'video/webm'
         })
         recorder.start();
+        recorder.onstart = function(e) {
+          console.log('recording started')
+          _this.setState({
+            'recordStartTime': moment.now()
+          })
+        }
         recorder.ondataavailable = function(e) {
           if (_this.state.recording === true) {
             chunks.push(e.data);
           }
         }
         recorder.onstop = function(e) {
+          console.log('recorder stopped', _this.state.recordStartTime)
+          _this.setState({
+            recordStopTime: moment.now(),
+            videoDuration: moment(_this.state.recordStartTime).diff(moment.now(), 'minutes')
+          })
           var blob = new Blob(chunks, { 'type' : 'video/webm' });
           video2.src = window.URL.createObjectURL(blob);
           video2.load();
@@ -797,6 +810,19 @@ class Home extends Component {
 
     var timeLoc = timeInterval;
 
+    var startTime = this.state.recordStartTime ? moment(this.state.recordStartTime).calendar(): ''
+    var stopTime = this.state.recordStopTime ? moment(this.state.recordStopTime).calendar(): ''
+    var videoDuration = this.state.videoDuration ? moment(this.state.videoDuration): ''
+    try {
+      this.state.Scopes[0].Scope_StartTime = startTime
+      this.state.Scopes[0].Scope_StopTime1 = stopTime
+    }
+    catch(err) {
+
+    }
+    if(this.state.recordStopTime && this.state.recordStartTime) {
+      this.state.Scopes[0].Scope_Duration = moment(this.state.recordStartTime).diff(moment(this.state.recordStopTime), 'minutes')
+    }
     return (
       <div className="home">
         <div className={saveSuccessFullPopUp}>

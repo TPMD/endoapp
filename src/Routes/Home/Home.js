@@ -519,6 +519,7 @@ class Home extends Component {
               })
             }, 100)
           }, false)
+          _this.PlayVideo().bind(this)
         }
         clearInterval(timer_timeout);
       }, (error) => {

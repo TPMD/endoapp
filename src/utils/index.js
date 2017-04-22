@@ -1,0 +1,1 @@
+export { ImagePrinter } from './imagePrinter'

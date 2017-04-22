@@ -3,27 +3,28 @@ import { expect } from 'chai'
 import { browserHistory } from 'react-router';
 import moment from 'moment';
 
-import superagent from 'superagent';
+import agent from 'superagent-bluebird-promise';
 import { API } from '../../env';
 
 import classname from 'classname';
+import ImagePrinter  from '../../utils/imagePrinter'
 
 import keydown from 'react-keydown'
 
 import './Home.scss';
 //import Header from '../../Components/Header/Header';
 
-var timer_timeout;
-var timer_timeout2;
-var timer_timeout3;
-//var stream;
-var timer = 0;
-var timeInterval = 120;
-var setTime = 0;
-var recorder;
-var chunks = [];
-var click = 0;
-var snapPhotoInterval
+let timer_timeout;
+let timer_timeout2;
+let timer_timeout3;
+//let stream;
+let timer = 0;
+let timeInterval = 120;
+let setTime = 30;
+let recorder;
+let chunks = [];
+let click = 0;
+let snapPhotoInterval
 const picCountLookup = {
   30: 60,
   60: 120,
@@ -42,7 +43,6 @@ class Home extends Component {
       'remove_popup': 0,
       'save_popup': 0,
       'save_successful_popup': 0,
-      'save_successful': false,
       'print_popup': 0,
       'image_popup': 0,
       'exit_popup': 0,
@@ -50,7 +50,6 @@ class Home extends Component {
       'dropdown_time': false,
       'dropdown_video': false,
       'stopped': true,
-      'counter': 0,
       'recording': false,
       'devices': [],
       'activeDevice': {},
@@ -66,37 +65,50 @@ class Home extends Component {
         'Patient_Date': localStorage.getItem('patientCreatedAt')
       },
       'Scopes': [],
-      'recordStartTime':null,
-      'recordStopTime': null,
-      'videoDuration':null
+      'recordStartTime1':null,
+      'recordStopTime1': null,
+      'recordStartTime2': null,
+      'recordStopTime2': null,
+      'scopeDuration':null
     }
     this.getVideoInputs = this.getVideoInputs.bind(this)
+    this.onStartTime1Click = this.onStartTime1Click.bind(this)
+    this.onStartTime2Click = this.onStartTime2Click.bind(this)
+    this.onStopTimeClick1 = this.onStopTimeClick1.bind(this)
+    this.onStopTimeClick2 = this.onStopTimeClick2.bind(this)
   }
   getVideoInputs() {
     let _this = this
     navigator.mediaDevices.enumerateDevices().then((devices) => {
-      var videoInputs = devices.filter((device, i) => {
+      let videoInputs = devices.filter((device, i) => {
         return device['kind'] === 'videoinput'
       })
       videoInputs = videoInputs.map((device, i) => {
-        if (device['label'].length > 9) {
-          device['label_short'] = device['label'].substr(0,9) + '...';
+        if(device !== undefined) {
+          if (device['label'].length > 9) {
+            device['label_short'] = device['label'].substr(0,9) + '...';
+          }
+          else if(device['label'].length === 0) {
+            device['label_short'] = 'Facetime...'
+          }
+          return device
         }
-        else if(device['label'].length === 0) {
-          device['label_short'] = 'Facetime...'
-        }
-        return device;
       });
+      if(videoInputs.length > 0) {
+        _this.setState({
+          devices: videoInputs,
+          activeDevice: videoInputs[0]
+        })
+      }
+    }).catch((error) => {
       _this.setState({
-        devices: videoInputs,
-        activeDevice: videoInputs[0]
+        error
       })
-    }).catch((err) => {
-      console.log('error getting input devices', err);
     });
   }
   componentDidMount() {
     console.log('home.js mounted')
+    console.log('should have image printer', ImagePrinter)
     let _this = this;
     _this.getVideoInputs()
     _this.getScopes();
@@ -177,9 +189,6 @@ class Home extends Component {
     if (recorder.state === 'inactive') {
       timer = 0
       let _this = this;
-      if(setTime === 0) {
-        snapPhotoInterval = setInterval(() => _this.SnapPhoto(), 100)
-      }
       timer_timeout = setInterval(() => {
         timer += 1
       }, 600)
@@ -211,14 +220,14 @@ class Home extends Component {
         console.log('video recording and else called')
         timer_timeout = setInterval(() => {timer+=1}, 600)
         snapPhotoInterval = setInterval(() => {
-        let numPics = picCountLookup[setTime]
-        if(_this.state.captures.length < numPics) {
-          _this.SnapPhoto()
+          let numPics = picCountLookup[setTime]
+          if(_this.state.captures.length < numPics) {
+            _this.SnapPhoto()
+            }
+          else {
+            clearInterval(timer_timeout)
+            clearInterval(snapPhotoInterval)
           }
-        else {
-          clearInterval(timer_timeout)
-          clearInterval(snapPhotoInterval)
-        }
         }, 300);
 
       }
@@ -230,29 +239,27 @@ class Home extends Component {
     let _this = this;
 
     setTimeout(() => {
-      var captures = this.state.captures;
+      let captures = this.state.captures;
       captures.push(timer);
       this.setState({
         captures: captures,
         'saved': false
       })
 
-      var canvas = document.querySelector('div.canvas-padding:last-of-type canvas');
-      var context = canvas.getContext('2d');
+      let canvas = document.querySelector('div.canvas-padding:last-of-type canvas');
+      let context = canvas.getContext('2d');
 
-      var video = document.querySelector('video');
-      var w, h, ratio;
+      let video = document.querySelector('video');
+      let w, h, ratio;
       ratio = video.videoWidth / video.videoHeight;
       w = video.videoWidth - 100;
       h = parseInt(w / ratio, 10);
       canvas.width = w;
       canvas.height = h;
-
-      console.log(w, h);
       context.fillRect(0, 0, w, h);
       context.drawImage(video, 0, 0, w, h);
 
-      var highlightedCaptures = _this.state.highlightedCaptures;
+      let highlightedCaptures = _this.state.highlightedCaptures;
       highlightedCaptures.push(0);
       _this.setState({
         'highlightedCaptures': highlightedCaptures
@@ -261,7 +268,7 @@ class Home extends Component {
   }
 
   HighlightAll() {
-    var highlightedCaptures = this.state.highlightedCaptures.map((hc, i) => {
+    let highlightedCaptures = this.state.highlightedCaptures.map((hc, i) => {
       if (hc === 0) {
         return 1;
       } else {
@@ -275,7 +282,7 @@ class Home extends Component {
   }
 
   UnhighlightAll() {
-    var highlightedCaptures = this.state.highlightedCaptures.map((hc, i) => {
+    let highlightedCaptures = this.state.highlightedCaptures.map((hc, i) => {
       return 0;
     });
     this.setState({
@@ -290,8 +297,8 @@ class Home extends Component {
       this.setState({
         'image_popup': 1
       })
-      var video = document.querySelector('video');
-      var w, h, ratio;
+      let video = document.querySelector('video');
+      let w, h, ratio;
       ratio = video.videoWidth / video.videoHeight;
       w = video.videoWidth - 100;
       h = parseInt(w / ratio, 10);
@@ -302,7 +309,7 @@ class Home extends Component {
     timer_timeout3 = setTimeout(() => {
       click = 0;
     }, 250);
-    var highlightedCaptures = this.state.highlightedCaptures;
+    let highlightedCaptures = this.state.highlightedCaptures;
     if (highlightedCaptures[i] === 0) {
       highlightedCaptures[i] = 1;
     } else {
@@ -315,7 +322,7 @@ class Home extends Component {
   }
 
   RemoveHighlightedCaptures() {
-    var highlightedCaptures = this.state.highlightedCaptures.map((hc, i) => {
+    let highlightedCaptures = this.state.highlightedCaptures.map((hc, i) => {
       if (hc === 1) {
         return -1;
       } else {
@@ -326,29 +333,44 @@ class Home extends Component {
       'highlightedCaptures': highlightedCaptures,
     });
     this.removePopup();
-    var _this = this;
+    let _this = this;
     setTimeout(() => {
       _this.forceUpdate();
     }, 25);
   }
 
   SaveImages() {
-    var _this = this;
+    let _this = this;
     this.setState({
       'saved': true,
       'save_successful_popup': 1
     })
     this.state.highlightedCaptures.forEach((hc, i) => {
       if (hc === 1) {
-        var canvas = document.querySelector('div.canvas-padding.canvas-index-' + i + ' canvas');
-        var duration = this.state.captures[i];
+        let canvas = document.querySelector('div.canvas-padding.canvas-index-' + i + ' canvas');
+        console.log(canvas)
+        let duration = this.state.captures[i];
+        console.log(duration)
+         console.log(_this.CanvasToBlob(canvas.toDataURL('image/png')))
 
-        var formData = new FormData();
-
-        formData.append('Patient_Id', localStorage["Patient_Id"])
-        formData.append('Images_CaptureTime', duration)
-        formData.append('img', _this.CanvasToBlob(canvas.toDataURL('image/png')))
-
+        let formData = new FormData();
+        let img = _this.CanvasToBlob(canvas.toDataURL('image/png'))
+        formData['img'] = _this.CanvasToBlob(canvas.toDataURL('image/png'))
+        formData['duration'] = duration
+        formData['patientId'] = _this.state.PatientInfo.Patient_Id
+        const headers = {
+          'content-type': 'multipart/form-data'
+        }
+        console.log('save images function should spit this out')
+        agent
+        .post(API+'/images/upload')
+        .set(headers)
+        .send({'test':'hello'})
+        .then(res => {
+          console.log('yooo')
+          console.log(res)
+        })
+        .catch(console.log)
         // superagent
         // .post(API + '/images')
         // .withCredentials()
@@ -366,18 +388,18 @@ class Home extends Component {
 
   CanvasToBlob(dataURI) {
     // convert base64/URLEncoded data component to raw binary data held in a string
-    var byteString;
+    let byteString;
     if (dataURI.split(',')[0].indexOf('base64') >= 0)
         byteString = atob(dataURI.split(',')[1]);
     else
         byteString = unescape(dataURI.split(',')[1]);
 
     // separate out the mime component
-    var mimeString = dataURI.split(',')[0].split(':')[1].split(';')[0];
+    let mimeString = dataURI.split(',')[0].split(':')[1].split(';')[0];
 
     // write the bytes of the string to a typed array
-    var ia = new Uint8Array(byteString.length);
-    for (var i = 0; i < byteString.length; i++) {
+    let ia = new Uint8Array(byteString.length);
+    for (let i = 0; i < byteString.length; i++) {
         ia[i] = byteString.charCodeAt(i);
     }
 
@@ -401,7 +423,7 @@ class Home extends Component {
   }
 
   updateScope(index, key, e) {
-    var Scopes = this.state.Scopes;
+    let Scopes = this.state.Scopes;
     Scopes[index][key] = e.target.value;
     this.setState({
       Scopes: Scopes
@@ -414,14 +436,13 @@ class Home extends Component {
   }
 
   addScope() {
-    var Scopes = this.state.Scopes;
+    let Scopes = this.state.Scopes;
     Scopes.push(
       {
         'Scope_Model': '',
         'Scope_SerialNumber': '',
         'Scope_StartTime': '',
-        'Scope_StopTime1': '',
-        'Scope_StopTime2': '',
+        'Scope_StopTime': '',
         'Scope_Duration': '',
       }
     )
@@ -431,7 +452,7 @@ class Home extends Component {
   }
 
   getScopes() {
-    var _this = this;
+    let _this = this;
     _this.setState({
       Scopes:[]
     })
@@ -468,13 +489,38 @@ class Home extends Component {
     // })
   }
 
+  onStartTime1Click() {
+    console.log('onStartime1Click called')
+    this.setState({
+      recordStartTime1: moment.now()
+    })
+  }
+
+  onStartTime2Click() {
+    console.log('onStartime2click called')
+    this.setState({
+      recordStartTime2: moment.now()
+    })
+  }
+
+  onStopTimeClick1() {
+    this.setState({
+      recordStopTime1: moment.now()
+    })
+  }
+
+  onStopTimeClick2() {
+    this.setState({
+      recordStopTime2: moment.now()
+    }) 
+  }
+
   confirmRecord() {
-    var video = document.querySelector('video.video1');
-    var video2 = document.querySelector('video.video2');
-    var _this = this;
+    let video = document.querySelector('video.video1');
+    let video2 = document.querySelector('video.video2');
+    let _this = this;
 
     if (navigator.mediaDevices.getUserMedia) {
-      console.log(_this.state.activeDevice['deviceId']);
       navigator.mediaDevices.getUserMedia({audio: false, video: {
         deviceId: { exact: _this.state.activeDevice['deviceId'] }
       }}).then((stream) => {
@@ -507,7 +553,7 @@ class Home extends Component {
             recordStopTime: moment.now(),
             videoDuration: moment(_this.state.recordStartTime).diff(moment.now(), 'minutes')
           })
-          var blob = new Blob(chunks, { 'type' : 'video/webm' });
+          let blob = new Blob(chunks, { 'type' : 'video/webm' });
           video2.src = window.URL.createObjectURL(blob);
           video2.load();
           video2.addEventListener('loadedmetadata', () => {
@@ -519,17 +565,19 @@ class Home extends Component {
               })
             }, 100)
           }, false)
-          _this.PlayVideo().bind(this)
+          _this.PlayVideo()
         }
         clearInterval(timer_timeout);
       }, (error) => {
-        console.log("Something went wrong...")
+        this.setState({
+          error
+        })
       });
     }
   }
 
   cancelRecord() {
-    var highlightedCaptures = this.state.highlightedCaptures.map((hc, i) => {
+    let highlightedCaptures = this.state.highlightedCaptures.map((hc, i) => {
       return -1;
     });
     this.setState({
@@ -581,27 +629,13 @@ class Home extends Component {
   }
 
   PrintCanvases() {
-    var windowContent = '<!DOCTYPE html>';
-    windowContent += '<html>'
-    windowContent += '<head><title>Print canvas</title></head>';
-    windowContent += '<body>'
+    let imageUrls = []
     this.state.highlightedCaptures.forEach((hc, i) => {
-      if (hc === 1) {
-        var dataUrl = document.querySelector('div.canvas-padding.canvas-index-' + i + ' canvas').toDataURL();
-        windowContent += '<img src="' + dataUrl + '" style="display: block; width: 100%; margin: 15px 0;">';
-      }
-    });
-    windowContent += '</body>';
-    windowContent += '</html>';
-    var printWin = window.open('','','width=800,height=1200');
-    printWin.document.open();
-    printWin.document.write(windowContent);
-    printWin.document.close();
-    setTimeout(() => {
-      printWin.focus();
-      printWin.print();
-      printWin.close();
-    }, 250);
+      let dataUrl = document.querySelector('div.canvas-padding.canvas-index-' + i + ' canvas').toDataURL();
+      imageUrls.push(dataUrl)
+    })
+    let p1 = new ImagePrinter(imageUrls)
+    p1.print()
   }
 
   recordPopup() {
@@ -700,6 +734,15 @@ class Home extends Component {
     this.setState({
       save_successful_popup: 0
     })
+  }
+
+  calculateScopeDuration() {
+    if(!this.state.recordStartTime1 || 
+      !this.state.recordStartTime2 ||
+      !this.state.recordStopTime1 ||
+      !this.state.recordStopTime2)
+      return ''
+    return `${moment(this.state.recordStopTime1).diff(this.state.recordStartTime1, 'minutes')}/${moment(this.state.recordStopTime2).diff(this.state.recordStartTime2, 'minutes')}/${moment(this.state.recordStopTime2).diff(this.state.recordStartTime2, 'minutes')+moment(this.state.recordStopTime1).diff(this.state.recordStartTime1, 'minutes')}`
   }
 
 
@@ -804,28 +847,54 @@ class Home extends Component {
       'invisible': this.state.deleteScope === false
     })
 
-    var EditText = "Edit";
+    let EditText = "Edit";
     if (this.state.deleteScope === true) {
       EditText = "Done";
     }
 
-    var timeLoc = timeInterval;
 
-    var startTime = this.state.recordStartTime ? moment(this.state.recordStartTime).calendar(): ''
-    var stopTime = this.state.recordStopTime ? moment(this.state.recordStopTime).calendar(): ''
-    var videoDuration = this.state.videoDuration ? moment(this.state.videoDuration): ''
+    let timeLoc = timeInterval;
+
+    let startTime1 = this.state.recordStartTime1 ? moment(this.state.recordStartTime1).format('LTS'): ''
+    let startTime2 = this.state.recordStartTime2 ? moment(this.state.recordStartTime2).format('LTS'): ''
+    let stopTime1 = this.state.recordStopTime1 ? moment(this.state.recordStopTime1).format('LTS'): ''
+    let stopTime2 = this.state.recordStopTime2 ? moment(this.state.recordStopTime2).format('LTS'): ''
+    let scopeDuration = this.calculateScopeDuration()
+    
+    let dropdownTimes = Array.apply(30, Array(Math.floor(timeLoc / 30) + 1)).map((index, i) => {
+                        return(
+                          <p key={i} onClick={() => {
+                            setTime = i * 30;
+                            document.querySelector('video.video2').currentTime = setTime;
+                            this.dropdownTime();
+                          }}>{Math.floor((i) / 2)}:{("0" + Math.floor((i) * 30) % 60).slice(-2)}</p>
+                        )
+                      }, this)
+    dropdownTimes = dropdownTimes.slice(1, dropdownTimes.length)
+
     try {
-      this.state.Scopes[0].Scope_StartTime = startTime
-      this.state.Scopes[0].Scope_StopTime1 = stopTime
+      this.state.Scopes[0].Scope_StartTime1 = startTime1
+      this.state.Scopes[0].Scope_StartTime2 = startTime2
+      this.state.Scopes[0].Scope_StopTime1 = stopTime1
+      this.state.Scopes[0].Scope_StopTime2 = stopTime2
+      this.state.Scopes[0].Scope_Duration = scopeDuration
+
     }
     catch(err) {
 
     }
-    if(this.state.recordStopTime && this.state.recordStartTime) {
-      this.state.Scopes[0].Scope_Duration = moment(this.state.recordStartTime).diff(moment(this.state.recordStopTime), 'minutes')
+
+    let startTime1Node 
+    if(startTime1 !== '') {
+      startTime1Node = <td><input value={startTime1} readonly/></td>
     }
+    else {
+      startTime1Node = <td><input value={startTime1} onClick={this.onStartTime1Click} onChange={this.updateScope.bind(this, 0, 'Scope_StartTime1')}/></td>
+    }
+
     return (
       <div className="home">
+        {this.state.error ? <div className="alert alert-danger" role="alert">{this.state.error} </div>: ''}
         <div className={saveSuccessFullPopUp}>
           <div className="popup-wrap">
             <p>Your images were saved successfully!</p>
@@ -913,8 +982,8 @@ class Home extends Component {
               <div className="canvases">
                 {
                   this.state.captures.map((capture, i) => {
-                    var canvasIndex = 'canvas-index-' + i;
-                    var canvasClass = classname({
+                    let canvasIndex = 'canvas-index-' + i;
+                    let canvasClass = classname({
                       'highlighted': this.state.highlightedCaptures[i] === 1,
                       'invisible': this.state.highlightedCaptures[i] === -1,
                       'canvas-padding': true
@@ -981,15 +1050,7 @@ class Home extends Component {
                   </div>
                   <div className={DropdownTime}>
                     {
-                      Array.apply(0, Array(Math.floor(timeLoc / 30) + 1)).map((index, i) => {
-                        return(
-                          <p key={i} onClick={() => {
-                            setTime = i * 30;
-                            document.querySelector('video.video2').currentTime = setTime;
-                            this.dropdownTime();
-                          }}>{Math.floor((i) / 2)}:{("0" + Math.floor((i) * 30) % 60).slice(-2)}</p>
-                        )
-                      }, this)
+                      dropdownTimes
                     }
                   </div>
                 </div>
@@ -1018,12 +1079,13 @@ class Home extends Component {
                 <table>
                   <thead>
                     <tr className="header">
-                      <td>Model</td>
+                      <td>Model </td>
                       <td>Serial Number</td>
-                      <td>Start Time</td>
-                      <td>Stop Time 1</td>
-                      <td>Stop Time 2</td>
-                      <td>Duration (min)</td>
+                      <td>Start Time1 <i className='fa fa-clock-o'/></td>
+                      <td>Stop Time1 <i className='fa fa-clock-o'/></td>
+                      <td> Start Time 2 <i className='fa fa-clock-o'/> </td>
+                      <td> Stop Time2 <i className='fa fa-clock-o'/></td>
+                      <td>Duration (min) </td>
                     </tr>
                   </thead>
                 </table>
@@ -1038,9 +1100,10 @@ class Home extends Component {
                             <input value={Scope['Scope_Model']} onChange={this.updateScope.bind(this, i, 'Scope_Model')}/>
                           </td>
                           <td><input value={Scope['Scope_SerialNumber']} onChange={this.updateScope.bind(this, i, 'Scope_SerialNumber')}/></td>
-                          <td><input value={Scope['Scope_StartTime']} onChange={this.updateScope.bind(this, i, 'Scope_StartTime')}/></td>
-                          <td><input value={Scope['Scope_StopTime1']} onChange={this.updateScope.bind(this, i, 'Scope_StopTime1')}/></td>
-                          <td><input value={Scope['Scope_StopTime2']} onChange={this.updateScope.bind(this, i, 'Scope_StopTime2')}/></td>
+                          <td><input value={Scope['Scope_StartTime1']} onClick={this.onStartTime1Click} onChange={this.updateScope.bind(this, i, 'Scope_StartTime1')}/></td>
+                          <td><input value={Scope['Scope_StopTime1']} onClick={this.onStopTimeClick1} onChange={this.updateScope.bind(this, i, 'Scope_StopTime1')}/></td>
+                          <td><input value={Scope['Scope_StartTime2']} onClick={this.onStartTime2Click} onChange={this.updateScope.bind(this, i, 'Scope_StartTime2')}/></td>
+                          <td><input value={Scope['Scope_StopTime2']} onClick={this.onStopTimeClick2} onChange={this.updateScope.bind(this, i, 'Scope_StopTime2')}/></td>
                           <td><input value={Scope['Scope_Duration']} onChange={this.updateScope.bind(this, i, 'Scope_Duration')}/></td>
                         </tr>
                       )

@@ -38,7 +38,7 @@ ImagePrinter.prototype = {
     var src = "";
     
     while (i < end) {
-      src += '<img src="'+this.images[i]+'">';
+      src += '<img src="'+this.images[i]+'" width="200" height="200">';
       i++;
     }
     return src;

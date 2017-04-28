@@ -348,40 +348,20 @@ class Home extends Component {
     this.state.highlightedCaptures.forEach((hc, i) => {
       if (hc === 1) {
         let canvas = document.querySelector('div.canvas-padding.canvas-index-' + i + ' canvas');
-        console.log(canvas)
-        let duration = this.state.captures[i];
-        console.log(duration)
-         console.log(_this.CanvasToBlob(canvas.toDataURL('image/png')))
-
-        let formData = new FormData();
         let img = _this.CanvasToBlob(canvas.toDataURL('image/png'))
-        formData['img'] = _this.CanvasToBlob(canvas.toDataURL('image/png'))
-        formData['duration'] = duration
-        formData['patientId'] = _this.state.PatientInfo.Patient_Id
-        const headers = {
-          'content-type': 'multipart/form-data'
-        }
-        console.log('save images function should spit this out')
-        agent
-        .post(API+'/images/upload')
-        .set(headers)
-        .send({'test':'hello'})
-        .then(res => {
-          console.log('yooo')
-          console.log(res)
+        const reader = new FileReader()
+        reader.addEventListener('loadend', data => {
+          const imgUrl = data.target.result
+          console.log('imgUrl', imgUrl)
+          agent
+          .post(API +'/images/upload')
+          .send({
+            'url': imgUrl
+          })
+          .then(console.log)
+          .catch(console.log)
         })
-        .catch(console.log)
-        // superagent
-        // .post(API + '/images')
-        // .withCredentials()
-        // .send(formData)
-        // .end((err, res) => {
-        //   if (err) {
-        //     console.log(err);
-        //   } else {
-        //     console.log("Image saved...");
-        //   }
-        // })
+        reader.readAsDataURL(img)
       }
     });
   }

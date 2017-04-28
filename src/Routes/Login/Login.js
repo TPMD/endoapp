@@ -28,6 +28,7 @@ class Login extends Component {
     .post(API + '/user/login')
     .send(this.state)
     .end((err, res) => {
+      console.log(res)
       if (err) {
         alert(res.text);
       } else {

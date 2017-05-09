@@ -1,3 +1,3 @@
-const API = "https://cfbc9cf1.ngrok.io";
+const API = "https://api.endopage.com";
 
 export { API }

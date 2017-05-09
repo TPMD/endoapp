@@ -346,23 +346,21 @@ class Home extends Component {
       'save_successful_popup': 1
     })
     this.state.highlightedCaptures.forEach((hc, i) => {
-      if (hc === 1) {
-        let canvas = document.querySelector('div.canvas-padding.canvas-index-' + i + ' canvas');
-        let img = _this.CanvasToBlob(canvas.toDataURL('image/png'))
-        const reader = new FileReader()
-        reader.addEventListener('loadend', data => {
-          const imgUrl = data.target.result
-          console.log('imgUrl', imgUrl)
-          agent
-          .post(API +'/images/upload')
-          .send({
-            'url': imgUrl
-          })
-          .then(console.log)
-          .catch(console.log)
+      let canvas = document.querySelector('div.canvas-padding.canvas-index-' + i + ' canvas');
+      let img = _this.CanvasToBlob(canvas.toDataURL('image/png'))
+      const reader = new FileReader()
+      reader.addEventListener('loadend', data => {
+        const imgUrl = data.target.result
+        console.log('imgUrl', imgUrl)
+        agent
+        .post(API +'/images/upload')
+        .send({
+          'url': imgUrl
         })
-        reader.readAsDataURL(img)
-      }
+        .then(console.log)
+        .catch(console.log)
+      })
+      reader.readAsDataURL(img)
     });
   }
 

@@ -1,4 +1,5 @@
-function ImagePrinter(images) {
+import moment from 'moment'
+function ImagePrinter(images, patientInfo) {
   var i = 0;
   var end = images.length;
   this.images = images
@@ -7,6 +8,7 @@ function ImagePrinter(images) {
   this.windowContent += '<html>'
   this.windowContent += '<head><title>Print canvas</title></head>';
   this.windowContent += '<body>'
+  this.patientInfo = patientInfo
 }
 ImagePrinter.prototype = {
   
@@ -38,10 +40,24 @@ ImagePrinter.prototype = {
     var src = "";
     
     while (i < end) {
-      src += '<img src="'+this.images[i]+'" width="200" height="200">';
+      src += '<img src="'+this.images[i]+'" width="200">';
       i++;
     }
     return src;
+  },
+
+  getPatientInfo: function() {
+    console.log('getting patient info')
+    let html = ''
+    html += '<div class="patient-info"'
+    html += '<p> Patient: ' + this.patientInfo.Patient_Name + '</p>'
+    html += '<p> Patient: ' + this.patientInfo.Patient_Id + '</p>'
+    html += '<p> Exam Date: ' + moment.utc(Number(this.patientInfo.Patient_Date)).format('YYYY-MM-DD') + '</p>'
+    html += '</div>'
+    html += '<div class="physician-info">'
+    html += '<p> Attending Physician: ' + this.patientInfo.Patient_Doctor + '</p>'
+    html += '</div>'
+    return html
   },
   
   getOptions : function() {
@@ -62,7 +78,10 @@ ImagePrinter.prototype = {
       this.closeWindow();
     }
     this.openWindow();
-    this.window.document.write( this.getImagesSource() );
+    this.window.document.write(this.getPatientInfo());
+    this.window.document.write( this.getImagesSource());
+    this.window.document.write('</body>')
+    this.window.document.write('</html>')
     this.window.document.close();
     setTimeout(() => {
       this.window.focus();

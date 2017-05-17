@@ -5,6 +5,7 @@ import moment from 'moment';
 
 import agent from 'superagent-bluebird-promise';
 import { API } from '../../env';
+import imageDownloader from 'react-file-download'
 
 import classname from 'classname';
 import ImagePrinter  from '../../utils/imagePrinter'
@@ -192,45 +193,11 @@ class Home extends Component {
       timer_timeout = setInterval(() => {
         timer += 1
       }, 600)
-      snapPhotoInterval = setInterval(() => {
-        let numPics = picCountLookup[setTime]
-        if(_this.state.captures.length < numPics) {
-          _this.SnapPhoto()
-        }
-        else {
-          timer = 0
-          _this.setState({
-            'recording': false
-          })
-          _this.confirmRecord()
-          _this.forceUpdate()
-        }
-      }, 300);
       recorder.start();
       _this.setState({
         'stopped': false
       })
       return false;
-    }
-    else if(recorder.state === 'recording') {
-      if(setTime === 0) {
-        snapPhotoInterval = setInterval(() => _this.SnapPhoto(), 500)
-      }
-      else {
-        console.log('video recording and else called')
-        timer_timeout = setInterval(() => {timer+=1}, 600)
-        snapPhotoInterval = setInterval(() => {
-          let numPics = picCountLookup[setTime]
-          if(_this.state.captures.length < numPics) {
-            _this.SnapPhoto()
-            }
-          else {
-            clearInterval(timer_timeout)
-            clearInterval(snapPhotoInterval)
-          }
-        }, 300);
-
-      }
     }
   }
 
@@ -612,7 +579,7 @@ class Home extends Component {
       let dataUrl = document.querySelector('div.canvas-padding.canvas-index-' + i + ' canvas').toDataURL();
       imageUrls.push(dataUrl)
     })
-    let p1 = new ImagePrinter(imageUrls)
+    let p1 = new ImagePrinter(imageUrls, this.state.PatientInfo)
     p1.print()
   }
 
@@ -712,6 +679,25 @@ class Home extends Component {
     this.setState({
       save_successful_popup: 0
     })
+  }
+
+  downloadSelectedImages(e) {
+    e.preventDefault();
+    this.state.highlightedCaptures.forEach((hc, i) => {
+      let canvas = document.querySelector('div.canvas-padding.canvas-index-' + i + ' canvas');
+      let img = this.CanvasToBlob(canvas.toDataURL('image/png'))
+      const reader = new FileReader()
+      reader.addEventListener('loadend', data => {
+        var i = new Image()
+        i.src = imgUrl
+        i.height = '100'
+        const imgUrl = data.target.result
+        console.log('imgUrl', imgUrl)
+        imageDownloader(i, 'test.png')
+      })
+      reader.readAsDataURL(img)
+    });
+
   }
 
   calculateScopeDuration() {

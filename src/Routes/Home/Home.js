@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import { expect } from 'chai'
 import { browserHistory } from 'react-router';
 import moment from 'moment';
+import RecordRTC from 'recordrtc'
 
 import agent from 'superagent-bluebird-promise';
 import { API } from '../../env';
@@ -9,6 +10,7 @@ import imageDownloader from 'react-file-download'
 
 import classname from 'classname';
 import ImagePrinter  from '../../utils/imagePrinter'
+import {convertStreams, PostBlob} from '../../utils/webmToMp4'
 
 import keydown from 'react-keydown'
 
@@ -110,6 +112,7 @@ class Home extends Component {
   componentDidMount() {
     console.log('home.js mounted')
     console.log('should have image printer', ImagePrinter)
+    console.log('should have postBlob', PostBlob)
     let _this = this;
     _this.getVideoInputs()
     _this.getScopes();
@@ -461,6 +464,7 @@ class Home extends Component {
   }
 
   confirmRecord() {
+    let recordVideo
     let video = document.querySelector('video.video1');
     let video2 = document.querySelector('video.video2');
     let _this = this;
@@ -481,6 +485,7 @@ class Home extends Component {
           mimeType : 'video/webm'
         })
         recorder.start();
+        console.log(recorder)
         recorder.onstart = function(e) {
           console.log('recording started')
           _this.setState({
@@ -510,7 +515,7 @@ class Home extends Component {
               })
             }, 100)
           }, false)
-          _this.PlayVideo()
+          convertStreams(blob)
         }
         clearInterval(timer_timeout);
       }, (error) => {
@@ -1029,6 +1034,11 @@ class Home extends Component {
                 <video width="320" height="240" className={Video2}></video>
               </div>
             </div>
+            <ol id="logs-preview">
+                    <li>
+                        <a href="https://www.webrtc-experiment.com/RecordRTC/">RecordRTC</a> experiment converting WebM to mp4 inside the browser!
+                    </li>
+                </ol>
           </div>
           <div className="column" id='scope-info'>
             <div className="card no-padding margin-top-2">

@@ -11,6 +11,7 @@ import imageDownloader from 'react-file-download'
 import classname from 'classname';
 import ImagePrinter  from '../../utils/imagePrinter'
 import {convertStreams, PostBlob} from '../../utils/webmToMp4'
+import Video from '../Video/Video'
 
 import keydown from 'react-keydown'
 
@@ -170,7 +171,6 @@ class Home extends Component {
   ToggleRecordState() {
     let _this = this;
     if (this.state.recording === false) {
-      _this.ToggleRecord();
       _this.setState({
         'recording': true
       });
@@ -1023,22 +1023,21 @@ class Home extends Component {
                     }
                   </div>
                 </div>
-                <img src={require("../../Assets/record.svg")} role='presentation'  className={Record1} onClick={this.ToggleRecordState.bind(this)}/>
+                <img src={require("../../Assets/record.svg")} role='presentation' id='record-video' className={Record1} onClick={this.ToggleRecordState.bind(this)}/>
                 <img src={require("../../Assets/record_active.svg")} role='presentation' className={Record2} onClick={this.ToggleRecordState.bind(this)}/>
-                <img src={require("../../Assets/stop.svg")} role='presentation' className="icon" onClick={this.StopVideo.bind(this)}/>
+                <img src={require("../../Assets/stop.svg")} id='stop-recording-video' role='presentation' className="icon" onClick={this.ToggleRecordState.bind(this)}/>
                 <img src={require("../../Assets/play.svg")} role='presentation' className="icon" onClick={this.PlayVideo.bind(this)}/>
               </div>
               <div className="videos">
                 <img role='presentation' src={require('../../Assets/exit.svg')} className="icon exit-icon" onClick={this.recordPopup.bind(this)}/>
-                <video width="320" height="240" className={Video1}></video>
-                <video width="320" height="240" className={Video2}></video>
+                <video className='video1'></video>
+                <Video/>
               </div>
+               <ol id="logs-preview">
+            
+               </ol>
             </div>
-            <ol id="logs-preview">
-                    <li>
-                        <a href="https://www.webrtc-experiment.com/RecordRTC/">RecordRTC</a> experiment converting WebM to mp4 inside the browser!
-                    </li>
-                </ol>
+            
           </div>
           <div className="column" id='scope-info'>
             <div className="card no-padding margin-top-2">

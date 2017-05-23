@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import { expect } from 'chai'
 import { browserHistory } from 'react-router';
 import moment from 'moment';
+import RecordRTC from 'recordrtc'
 
 import agent from 'superagent-bluebird-promise';
 import { API } from '../../env';
@@ -9,6 +10,8 @@ import imageDownloader from 'react-file-download'
 
 import classname from 'classname';
 import ImagePrinter  from '../../utils/imagePrinter'
+import {convertStreams, PostBlob} from '../../utils/webmToMp4'
+import Video from '../Video/Video'
 
 import keydown from 'react-keydown'
 
@@ -110,6 +113,7 @@ class Home extends Component {
   componentDidMount() {
     console.log('home.js mounted')
     console.log('should have image printer', ImagePrinter)
+    console.log('should have postBlob', PostBlob)
     let _this = this;
     _this.getVideoInputs()
     _this.getScopes();
@@ -167,7 +171,6 @@ class Home extends Component {
   ToggleRecordState() {
     let _this = this;
     if (this.state.recording === false) {
-      _this.ToggleRecord();
       _this.setState({
         'recording': true
       });
@@ -461,6 +464,7 @@ class Home extends Component {
   }
 
   confirmRecord() {
+    let recordVideo
     let video = document.querySelector('video.video1');
     let video2 = document.querySelector('video.video2');
     let _this = this;
@@ -481,6 +485,7 @@ class Home extends Component {
           mimeType : 'video/webm'
         })
         recorder.start();
+        console.log(recorder)
         recorder.onstart = function(e) {
           console.log('recording started')
           _this.setState({
@@ -510,7 +515,7 @@ class Home extends Component {
               })
             }, 100)
           }, false)
-          _this.PlayVideo()
+          convertStreams(blob)
         }
         clearInterval(timer_timeout);
       }, (error) => {
@@ -1018,17 +1023,21 @@ class Home extends Component {
                     }
                   </div>
                 </div>
-                <img src={require("../../Assets/record.svg")} role='presentation'  className={Record1} onClick={this.ToggleRecordState.bind(this)}/>
+                <img src={require("../../Assets/record.svg")} role='presentation' id='record-video' className={Record1} onClick={this.ToggleRecordState.bind(this)}/>
                 <img src={require("../../Assets/record_active.svg")} role='presentation' className={Record2} onClick={this.ToggleRecordState.bind(this)}/>
-                <img src={require("../../Assets/stop.svg")} role='presentation' className="icon" onClick={this.StopVideo.bind(this)}/>
+                <img src={require("../../Assets/stop.svg")} id='stop-recording-video' role='presentation' className="icon" onClick={this.ToggleRecordState.bind(this)}/>
                 <img src={require("../../Assets/play.svg")} role='presentation' className="icon" onClick={this.PlayVideo.bind(this)}/>
               </div>
               <div className="videos">
                 <img role='presentation' src={require('../../Assets/exit.svg')} className="icon exit-icon" onClick={this.recordPopup.bind(this)}/>
-                <video width="320" height="240" className={Video1}></video>
-                <video width="320" height="240" className={Video2}></video>
+                <video className='video1'></video>
+                <Video/>
               </div>
+               <ol id="logs-preview">
+            
+               </ol>
             </div>
+            
           </div>
           <div className="column" id='scope-info'>
             <div className="card no-padding margin-top-2">

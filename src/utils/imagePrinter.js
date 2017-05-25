@@ -40,7 +40,7 @@ ImagePrinter.prototype = {
     var src = "";
     
     while (i < end) {
-      src += '<img src="'+this.images[i]+'" width="200">';
+      src += '<img src="'+this.images[i]+'" width="200" style="border-radius:0px; padding-left:10px; margin-bottom:20px;">';
       i++;
     }
     return src;

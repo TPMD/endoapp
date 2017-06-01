@@ -6,7 +6,6 @@ import RecordRTC from 'recordrtc'
 
 import agent from 'superagent-bluebird-promise';
 import { API } from '../../env';
-import imageDownloader from 'image-downloader'
 import blobUtil from 'blob-util'
 
 import classname from 'classname';

@@ -6,7 +6,8 @@ import RecordRTC from 'recordrtc'
 
 import agent from 'superagent-bluebird-promise';
 import { API } from '../../env';
-import imageDownloader from 'react-file-download'
+import imageDownloader from 'image-downloader'
+import blobUtil from 'blob-util'
 
 import classname from 'classname';
 import ImagePrinter  from '../../utils/imagePrinter'
@@ -687,20 +688,25 @@ class Home extends Component {
   }
 
   downloadSelectedImages(e) {
+    let _this = this
     e.preventDefault();
+    console.log('should download highlighted images')
+    let genId = require('gen-id')('nnnnnnnc')
+
     this.state.highlightedCaptures.forEach((hc, i) => {
       let canvas = document.querySelector('div.canvas-padding.canvas-index-' + i + ' canvas');
-      let img = this.CanvasToBlob(canvas.toDataURL('image/png'))
-      const reader = new FileReader()
-      reader.addEventListener('loadend', data => {
-        var i = new Image()
-        i.src = imgUrl
-        i.height = '100'
-        const imgUrl = data.target.result
-        console.log('imgUrl', imgUrl)
-        imageDownloader(i, 'test.png')
-      })
-      reader.readAsDataURL(img)
+      let img = _this.CanvasToBlob(canvas.toDataURL('image/png'))
+      let url = window.URL.createObjectURL(img)
+      let image = document.createElement('a')
+      let imageId = genId.generate()
+      image.download = `photo-${genId.generate()}.png`
+      image.href = url
+      image.target = '_blank'
+      image.id = imageId
+      window.document.body.appendChild(image)
+      window.document.getElementById(imageId).click()
+
+
     });
 
   }
@@ -820,6 +826,11 @@ class Home extends Component {
     if (this.state.deleteScope === true) {
       EditText = "Done";
     }
+
+    let imageDownload = classname({
+      'invisible-pe': this.state.highlightedCaptures.filter((hc, i) => { return hc === 1 }).length === 0,
+      'button': true 
+    })
 
 
     let timeLoc = timeInterval;
@@ -946,6 +957,7 @@ class Home extends Component {
                   <a className={SelectAll} onClick={this.HighlightAll.bind(this)}>Select All</a>
                   <a className={DeselectAll} onClick={this.UnhighlightAll.bind(this)}>Deselect</a>
                   <a className={RemoveAll} onClick={this.removePopup.bind(this)}>Remove</a>
+                  <a className={imageDownload} onClick={this.downloadSelectedImages.bind(this)}>Download</a>
                 </div>
               </div>
               <div className="canvases">

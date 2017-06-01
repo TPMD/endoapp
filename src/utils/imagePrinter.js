@@ -46,13 +46,13 @@ ImagePrinter.prototype = {
   getPatientInfo: function() {
     console.log('getting patient info')
     let html = ''
-    html += '<div class="patient-info"'
+    html += '<div class="patient-info">'
     html += '<p> Patient Name: ' + this.patientInfo.Patient_Name + '</p>'
     html += '<p> Patient Id: ' + this.patientInfo.Patient_Id + '</p>'
     html += '<p> Exam Date: ' + moment.utc(Number(this.patientInfo.Patient_Date)).format('YYYY-MM-DD') + '</p>'
     html += '</div>'
     html += '<div class="physician-info">'
-    html += '<p> Attending Physician: ' + this.patientInfo.Patient_Doctor + '</p>'
+    html += '<p style="float:right; margin-top:-100px;"> Attending Physician: ' + this.patientInfo.Patient_Doctor + '</p>'
     html += '</div>'
     return html
   },

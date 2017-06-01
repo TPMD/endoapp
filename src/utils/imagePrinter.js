@@ -19,10 +19,7 @@ ImagePrinter.prototype = {
   
   initOptions : function() {
     this.options = [
-      "width=400",
-      "height=400",
       "scrollbars=yes",
-      "location=yes",
       "toolbar=yes"
     ];
   },

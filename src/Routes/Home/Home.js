@@ -80,6 +80,7 @@ class Home extends Component {
     this.onStartTime2Click = this.onStartTime2Click.bind(this)
     this.onStopTimeClick1 = this.onStopTimeClick1.bind(this)
     this.onStopTimeClick2 = this.onStopTimeClick2.bind(this)
+    this.printPopup = this.printPopup.bind(this)
   }
   getVideoInputs() {
     let _this = this
@@ -585,7 +586,9 @@ class Home extends Component {
       imageUrls.push(dataUrl)
     })
     let p1 = new ImagePrinter(imageUrls, this.state.PatientInfo)
+    this.printPopup()
     p1.print()
+
   }
 
   recordPopup() {

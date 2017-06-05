@@ -15,7 +15,7 @@ ReactDOM.render(
     <Route path="/" component={Login}/>
     <Route path="/register" component={Register}/>
     <Route path="/patient" component={Patient}/>
-    <Route path="/endopage" component={Home}/>
+    <Route path="/imagecapture" component={Home}/>
     <Route path='/video' component={Video} />
   </Router>,
   document.getElementById('root')

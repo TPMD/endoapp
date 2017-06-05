@@ -47,7 +47,7 @@ class Patient extends Component {
         localStorage.setItem("patientCreatedAt", this.state.createdAt);
         localStorage.setItem('patientOperationType', this.state.operationType)
         localStorage.setItem('patientId', this.state.patientId)
-        browserHistory.push('/endopage');
+        browserHistory.push('/imagecapture');
       }
     });
   }

@@ -66,7 +66,8 @@ class Home extends Component {
         'Patient_Insurance': localStorage.getItem('patientInsurance'),
         'Patient_Doctor': localStorage.getItem('patientDoctor'),
         'Patient_OperationType': localStorage.getItem('patientOperationType'),
-        'Patient_Date': localStorage.getItem('patientCreatedAt')
+        'Patient_Date': localStorage.getItem('patientCreatedAt'),
+        'Patient_Hospital': localStorage.getItem('patientHospital')
       },
       'Scopes': [],
       'recordStartTime1':null,
